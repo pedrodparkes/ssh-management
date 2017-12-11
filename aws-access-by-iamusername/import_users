@@ -1,0 +1,5 @@
+# /etc/cron.d/import_users
+#  mode: '000644'
+#  owner: root
+#  group: root
+*/10 * * * * root /opt/import_users.sh

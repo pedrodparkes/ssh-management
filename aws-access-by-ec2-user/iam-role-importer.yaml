@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'IAM Role able to grab IAM-users and IAM Users SSH Deploy Keys'
+Resources:
+  IAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: ec2
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ec2:AssociateAddress'
+                Resource:
+                  - '*'
+        - PolicyName: logs
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 'logs:DescribeLogStreams'
+                Resource:
+                  - 'arn:aws:logs:*:*:*'
+  IAMPolicySSHAccess:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      Roles:
+        - !Ref IAMRole
+      PolicyName: iam
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'iam:ListUsers'
+            Resource:
+              - '*'
+          - Effect: Allow
+            Action:
+              - 'iam:ListSSHPublicKeys'
+              - 'iam:GetSSHPublicKey'
+            Resource:
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:user/*'
